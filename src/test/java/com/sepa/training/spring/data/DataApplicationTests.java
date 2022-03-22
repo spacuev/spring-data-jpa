@@ -1,11 +1,13 @@
 package com.sepa.training.spring.data;
 
+import com.sepa.service.country.demo.rest.CountryController;
 import com.sepa.training.spring.data.entities.Country;
 import com.sepa.training.spring.data.repositories.CountryRepository;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.ArrayList;
@@ -19,6 +21,9 @@ class DataApplicationTests {
 
 	@Autowired
 	CountryRepository repository;
+
+	@Autowired
+	ApplicationContext context;
 
 	@Before
 	public void setUp() {
@@ -47,11 +52,21 @@ class DataApplicationTests {
 	@Test
 	public void testCountryChange() {
 
-		repository.updateCountryPopulationByCode("RU", 145000000);
+		Country country = repository.getCountryByCode("RUS");
 
-		final Country country = repository.getCountryByCode("RU");
+		// get bean from SpringBoot starter
+		final CountryController countryController = (CountryController) context.getBean("countryController");
+
+		// request information from SpringBoot starter's bean about the country (including Population)
+		final com.sepa.service.country.demo.model.Country countryInfo = countryController.getCountryInfo(country.getShortName());
+
+		// update country - set actual population
+		repository.updateCountryPopulationByCode("RUS", countryInfo.getPopulation());
+
+		// check population
+		country = repository.getCountryByCode("RUS");
 		assertNotNull(country);
 
-		assertEquals(145000000, country.getPopulation());
+		assertEquals(countryInfo.getPopulation(), country.getPopulation());
 	}
 }

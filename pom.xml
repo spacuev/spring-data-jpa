@@ -48,6 +48,14 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 		</dependency>
+
+
+		<dependency>
+			<groupId>com.sepa.service.country</groupId>
+			<artifactId>sepa-country-service-starter</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
