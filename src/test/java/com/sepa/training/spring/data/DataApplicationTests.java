@@ -2,7 +2,7 @@ package com.sepa.training.spring.data;
 
 import com.sepa.service.country.demo.rest.CountryController;
 import com.sepa.training.spring.data.entities.Country;
-import com.sepa.training.spring.data.repositories.CountryRepository;
+import com.sepa.training.spring.data.service.CountryService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 class DataApplicationTests {
 
 	@Autowired
-	CountryRepository repository;
+	CountryService service;
 
 	@Autowired
 	ApplicationContext context;
@@ -33,10 +32,8 @@ class DataApplicationTests {
 	@DirtiesContext
 	public void testCountryList() {
 
-		List<Country> countryList = new ArrayList<>();
+		final List<Country> countryList = service.getCountries();
 
-		final Iterable<Country> countries = repository.findAll();
-		countries.forEach(countryList::add);
 		assertNotNull(countryList);
 
 		assertEquals(countryList.size(), 4);
@@ -44,7 +41,7 @@ class DataApplicationTests {
 
 	@Test
 	public void testCountryByCode() {
-		final Country country = repository.getCountryByCode("USA");
+		final Country country = service.getCountryByCode("USA");
 
 		assertNotNull(country);
 	}
@@ -52,7 +49,7 @@ class DataApplicationTests {
 	@Test
 	public void testCountryChange() {
 
-		Country country = repository.getCountryByCode("RUS");
+		Country country = service.getCountryByCode("RUS");
 
 		// get bean from SpringBoot starter
 		final CountryController countryController = (CountryController) context.getBean("countryController");
@@ -61,10 +58,10 @@ class DataApplicationTests {
 		final com.sepa.service.country.demo.model.Country countryInfo = countryController.getCountryInfo(country.getShortName());
 
 		// update country - set actual population
-		repository.updateCountryPopulationByCode("RUS", countryInfo.getPopulation());
+		service.updateCountryPopulationByCode("RUS", countryInfo.getPopulation());
 
 		// check population
-		country = repository.getCountryByCode("RUS");
+		country = service.getCountryByCode("RUS");
 		assertNotNull(country);
 
 		assertEquals(countryInfo.getPopulation(), country.getPopulation());
